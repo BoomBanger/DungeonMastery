@@ -100,13 +100,25 @@ def waves(arr, wavyness:int, smoothing:int):
     return arr
 
 #draws grid on {arr} with a spacing of {width} pixels
-def drawGrid(arr, width:int):
+def drawGrid(arr, width:int, color:str):
+    col = {"Black": (0, 0, 0),
+           "White": (255, 255, 255),
+           "Gray": (128, 128, 128),
+           "Blue:": (255, 0, 0),
+           "Red": (0, 0, 255),
+           "Yellow": (0, 255, 255),
+           "Orange": (0, 255, 165),
+           "Purple": (250, 230, 230),
+           "Green": (0, 255, 0)}
+    
+    
+    
     h, w = arr.shape
     arr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
     for x in range(0, w, width):
-        cv2.line(arr, (x, 0), (x, h), (0, 255, 0))
+        cv2.line(arr, (x, 0), (x, h), col[color])
     for y in range(0, h, width):
-        cv2.line(arr, (0, y), (w, y), (0, 255, 0))
+        cv2.line(arr, (0, y), (w, y), col[color])
     return arr
 
 #process image and save it in img.png
@@ -114,7 +126,7 @@ def drawGrid(arr, width:int):
 #smoothing: how round you want it to be
 #wavyness: how bumpy you want it to be
 #gridWidth: pixel width between gridlines. 0 is no grid
-def process(array, upscale, smoothing, wavyness, gridWidth):
+def process(array, upscale, smoothing, wavyness, gridWidth, gridColor):
     smoothing = smoothing * 2 + 1
     wavyness = wavyness * 2 + 1
     array = np.float32(array) * 255
@@ -123,7 +135,7 @@ def process(array, upscale, smoothing, wavyness, gridWidth):
     array = waves(array, wavyness, smoothing)
     array = smooth(array, smoothing)
     if gridWidth:
-        array = drawGrid(array, gridWidth)
+        array = drawGrid(array, gridWidth, gridColor)
     array = binary(array)
     cv2.imwrite("img.png", array)
     return array
