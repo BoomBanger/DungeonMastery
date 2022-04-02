@@ -5,7 +5,8 @@ from tkinter import *
 
 root = Tk()
 root.title("BoomBanger Dungeon Generator")
-
+root.attributes('-fullscreen', True)
+root.attributes('-fullscreen', False)
 buttonArray = []
 wallArray = []
 
@@ -42,12 +43,24 @@ def createMap(x, y):
     # initializes the two arrays, button array and color/wall array
     array = []
     wArray = np.zeros((y,x))
+    # if statement scales size of buttons to how many buttons there are
+    h = 4
+    w = 10
+    if x > 15 or y > 15:
+        h = 2
+        w = 5
+    elif x > 10 or y > 10:
+        h = 3
+        w = 7
+    else:
+        h = h
+        w = w
     # generates the amount of buttons in each row and column for the button array
     for row in range(y):
         # yArray is each row, and once each row is done it gets appended to the final list
         yArray = []
         for col in range(x):
-            sampleBut = Button(root, bg='black', height=4, width=10, command=lambda row=row, col=col: makeWalls(row, col))
+            sampleBut = Button(root, bg='black', height=h, width=w, command=lambda row=row, col=col: makeWalls(row, col))
             sampleBut.grid(row=row, column=col)
             yArray.append(sampleBut)
         array.append(yArray)
