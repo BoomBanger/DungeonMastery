@@ -20,7 +20,7 @@ def blobWithMaxArea(mask, noblobswithlotsofedges=False):
     for i in range(numLabelsOut):
         img = np.zeros((labelsOut.shape))
         img[labelsOut == i] = 255
-        val = sizes[i] / np.mean(getBorder(img)) if noblobswithlotsofedges else sizes[i]
+        val = sizes[i] / (np.mean(getBorder(img)) + 1) if noblobswithlotsofedges else sizes[i]
         if val > min_size:
             label = img
             min_size = val
