@@ -8,8 +8,6 @@ from PIL import ImageTk, Image
 
 root = Tk()
 root.title("BoomBanger Dungeon Generator")
-root.attributes('-fullscreen', True)
-root.attributes('-fullscreen', False)
 buttonArray = []
 wallArray = []
 
@@ -31,7 +29,7 @@ def getXY():
 
     buttonArray, wallArray = createMap(xBut.get(), yBut.get())
 
-    refineMap.grid(row=0, column=yBut.get()+1)
+    refineMap.grid(row=0, column=xBut.get()+1)
     # these removes the startup screen buttons, allowing for map to take their place
     xLabel.grid_forget()
     yLabel.grid_forget()
@@ -53,7 +51,7 @@ def runPhotoProcess():
     imgPath = imgPath[24:]
     print(imgPath)
     wallArray = Processing.fromImage(imgPath)
-    goToProcess()
+    goToProcess(2)
 
 # brings user to the image upload/selection screen
 def picScreen():
@@ -89,7 +87,7 @@ def getImage():
 
 # all of these widgets are used/related to the picture dungeon creation tool
 instructions = Label(root, text='Please select an image using the button below that you would like to convert into '
-                                'a dungeon. Make sure the image has clear lines and is drawn on a white background '
+                                'a dungeon.\nMake sure the image has clear lines and is drawn on a white background '
                                 'with either a pencil or other dark colored utensil.')
 enterPic = Button(root, text="Generate Dungeon Using Picture", command=picScreen)
 enterPic.grid(row=3, column=0, columnspan=2)
@@ -99,12 +97,62 @@ picLabel = Label(root)
 contin = Button(root, text="Submit Photo", command=runPhotoProcess)
 
 
-# runs the image generation on the user created dungeon layout
-def goToProcess():
+#
+def process():
+    scale = scaleSlid.get()
+    smooth = smoothSlid.get()
+    rough = roughSlid.get()
+    gridWid = gridWidSlid.get()
+    gridColor = color.get()
+    Processing.process(wallArray, scale, smooth, rough, gridWid)
+
+
+# creation of all the image editing widgets
+scaleLab = Label(root, text="Scale (width of picture in pixels)")
+scaleSlid = Scale(root, orient=HORIZONTAL, length=150, resolution=10, from_=250, to=1500, command=process)
+smoothLab = Label(root, text="Smoothness (Higher means more rounded)")
+smoothSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=process)
+roughLab = Label(root, text="Bumpiness (Higher means more bumps")
+roughSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=process)
+gridWidLab = Label(root, text="Determines how many pixels a grid square is")
+gridWidSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=process)
+gridColLab = Label(root, text="Determines the color of the grid lines")
+color = StringVar(root)
+color.set("Gray")  # default color for grid lines
+gridColDrop = OptionMenu(root, color, "Black", "White", "Gray", "Blue", "Red",
+                         "Yellow", "Orange", "Purple", "Green", command=process)
+
+
+# runs the image generation on the user created dungeon layout:   1 is non-photo, 2 is photo
+def goToProcess(preset):
     print(wallArray)
+    if preset == 1:
+        # hiding widgets in square draw path
+        refineMap.grid_forget()
+        for ro in buttonArray:
+            for but in ro:
+                but.grid_forget()
+    elif preset == 2:
+        instructions.grid_forget()
+        selectBut.grid_forget()
+        imgLabel.grid_forget()
+        picLabel.grid_forget()
+        contin.grid_forget()
+
+    # scaling(from comp 10-1000, from pic ), smoothing(0-tbd), roughness(0-tbd), gridwidth(0-tbd), gridcolor(tbd)
+    scaleLab.grid(row=0, column=0)
+    scaleSlid.grid(row=0, column=1)
+    smoothLab.grid(row=1, column=0)
+    smoothSlid.grid(row=1, column=1)
+    roughLab.grid(row=2, column=0)
+    roughSlid.grid(row=2, column=1)
+    gridWidLab.grid(row=3, column=0)
+    gridWidSlid.grid(row=3, column=1)
+    gridColLab.grid(row=4, column=0)
+    gridColDrop.grid(row=4, column=1)
 
 
-refineMap = Button(root, text="Process User-Drawn Map", height=2, width=20, command=goToProcess)
+refineMap = Button(root, text="Process User-Drawn Map", height=2, width=20, command=lambda: goToProcess(1))
 
 
 # creates dungeon and gives 2d array of buttons and their color values
