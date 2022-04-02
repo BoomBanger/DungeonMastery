@@ -113,7 +113,7 @@ def cropBlob(blob):
     x, y, w, h = cv2.boundingRect(cv2.bitwise_not(blob))
     return blob[y:y+h, x:x+w]
 
-def fromImage(file, upscale, smoothing, wavyness):
+def fromImage(file):
     img = cv2.imread(file)
     grey = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
     lines = cv2.Canny(grey, 100, 200)
@@ -127,7 +127,7 @@ def fromImage(file, upscale, smoothing, wavyness):
         dungeon = blobWithMaxArea(dungeon, True)
         dungeon = cropBlob(dungeon)
         i += 1
-    process(dungeon / 255, upscale, smoothing, wavyness)
+    return dungeon / 255
     
     
     
