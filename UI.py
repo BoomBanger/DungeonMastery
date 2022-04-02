@@ -48,11 +48,12 @@ enter.grid(row=2, column=0, columnspan=2)
 
 # this section is the photo processing section
 def runPhotoProcess():
-
+    global wallArray
     imgPath = imgLabel.cget('text')
     imgPath = imgPath[24:]
     print(imgPath)
-    # Processing.fromImage(imgPath, upscale, smoothing, wavyness)
+    wallArray = Processing.fromImage(imgPath)
+    goToProcess()
 
 # brings user to the image upload/selection screen
 def picScreen():
@@ -99,12 +100,11 @@ contin = Button(root, text="Submit Photo", command=runPhotoProcess)
 
 
 # runs the image generation on the user created dungeon layout
-def runProcess():
-    # parameters are wallArray, upscale: min-25, smoothness: min-0, wavyness: min-0)
-    cv2.imshow("img", Processing.process(wallArray, 25, 0, 0))
+def goToProcess():
+    print(wallArray)
 
 
-refineMap = Button(root, text="Process User-Drawn Map", height=2, width=20, command=runProcess)
+refineMap = Button(root, text="Process User-Drawn Map", height=2, width=20, command=goToProcess)
 
 
 # creates dungeon and gives 2d array of buttons and their color values
