@@ -162,7 +162,6 @@ def runPhotoProcess():
     global wallArray
     imgPath = imgLabel.cget('text')
     imgPath = imgPath[24:]
-    print(imgPath)
     wallArray = Processing.fromImage(imgPath)
     goToProcess(2)
 
@@ -240,21 +239,22 @@ def toDetail():
 # runs all the update screen information once a user selects a photo
 def getImage():
     picId = tkinter.filedialog.askopenfilename()
-    imgLabel.config(text='Your image location is: ' + picId)
-    img = Image.open(picId)
+    if picId:
+        imgLabel.config(text='Your image location is: ' + picId)
+        img = Image.open(picId)
 
-    tkimage = ImageTk.PhotoImage(img)
-    aspectRatio = tkimage.height()/tkimage.width()
+        tkimage = ImageTk.PhotoImage(img)
+        aspectRatio = tkimage.height()/tkimage.width()
 
-    resized_image = img.resize((300, int(300 * aspectRatio)))
-    new_image = ImageTk.PhotoImage(resized_image)
-    picLabel.image = new_image
-    picLabel.config(image=new_image)
-    picLabel.grid(row=3, column=0, rowspan=4)
-    contin.grid(row=3, column=1)
-    downSizBut.grid(row=4, column=1)
-    downLab.grid(row=5, column=1)
-    backPicStart.grid(row=6, column=1)
+        resized_image = img.resize((300, int(300 * aspectRatio)))
+        new_image = ImageTk.PhotoImage(resized_image)
+        picLabel.image = new_image
+        picLabel.config(image=new_image)
+        picLabel.grid(row=3, column=0, rowspan=4)
+        contin.grid(row=3, column=1)
+        downSizBut.grid(row=4, column=1)
+        downLab.grid(row=5, column=1)
+        backPicStart.grid(row=6, column=1)
 
 
 # all of these widgets are used/related to the picture dungeon creation tool
@@ -277,7 +277,8 @@ downLab = Label(root, text="Downscaling decreases the photo's resolution for bet
 backPicStart = Button(root, text='Back to Start', command=lambda: backButtons(3))
 
 def downloadPic():
-    Processing.downloadImg(finalPic, tkinter.filedialog.asksaveasfilename())
+    file = tkinter.filedialog.asksaveasfilename()
+    if file: Processing.downloadImg(finalPic, file)
 
 
 # updates the image to match specifications user makes with widgets
@@ -316,7 +317,6 @@ detailBut = Button(root, text='Detail Map', command=toDetail)
 # runs the image generation on the user created dungeon layout:   1 is non-photo, 2 is photo, 3 is downscale
 def goToProcess(preset):
     global wallArray
-    print(wallArray)
     if preset == 1:
         # hiding widgets in square draw path
         refineMap.grid_forget()
@@ -437,7 +437,8 @@ def update():
     global activeDraggable
     activeDraggable.description = descEnt.get()
 
-# takes wall array has parameter
+
+# starts all widgets in canvas section
 def startCanvas():
     gridWidLab.grid(row=0, column=0)
     gridWidSlid.grid(row=0, column=1)
@@ -478,9 +479,46 @@ def canProcess(x):
     picBackground.image = new_sampleMap
     picBackground.tag_lower(picture)
 
+
+def saveTxt():
+    txtFile = tkinter.filedialog.asksaveasfilename()
+    if txtFile: Processing.addPoints(finalPic, mapOldNewWidthRatio, [door.getTuple() for door in listOfDoorDrags],
+                         [number.getTuple() for number in listOfNumDrags], 3, fileLocation=txtFile)
+
+
+def saveImg():
+    imgFile = tkinter.filedialog.asksaveasfilename()
+    if imgFile:
+        tempArray = Processing.addPoints(finalPic, mapOldNewWidthRatio, [door.getTuple() for door in listOfDoorDrags],
+                                     [number.getTuple() for number in listOfNumDrags], 3)
+
+        # this changes the grid attributes, HAS to go after door processing
+        tempArray = Processing.drawGrid(tempArray, int(gridWidSlid.get()), color.get())
+        Processing.downloadImg(tempArray, imgFile)
+
+
 # compiles notes and map into final product
 def compiCan():
+    # removes unnecessary widgets
+    gridWidLab.grid_forget()
+    gridWidSlid.grid_forget()
+    gridColLab.grid_forget()
+    gridColDrop.grid_forget()
+    picBackground.grid_forget()
+    doorLab.grid_forget()
+    doorBut.grid_forget()
+    markLab.grid_forget()
+    markBut.grid_forget()
+    descLab.grid_forget()
+    descEnt.grid_forget()
+    compiBut.grid_forget()
 
+    saveTxtBut.grid(row=0, column=0)
+    saveImgBut.grid(row=1, column=0)
+
+
+saveTxtBut = Button(root, text='Save your notes in a .txt file', command=saveTxt)
+saveImgBut = Button(root, text='Save your image in a .jpg/.png file', command=saveImg)
 
 gridWidLab = Label(root, text="Determines pixel length of grid squares")
 gridWidSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=canProcess)
@@ -506,7 +544,6 @@ def callback(sv):
     update()
 sv = StringVar()
 sv.trace("w", lambda name, index, mode, sv=sv: callback(sv))
-descEnt = Entry(root, textvariable=sv)
+descEnt = Entry(root, textvariable=sv, height=2)
 compiBut = Button(root, text='Compile Notes and Image', command=compiCan)
-print("HI")
 root.mainloop()
