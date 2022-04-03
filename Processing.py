@@ -127,6 +127,12 @@ def drawGrid(arr, width:int, color:str):
 
     return arr
 
+def rotate(array):
+    h, w = array.shape
+    if h > w:
+        return cv2.rotate(array, cv2.ROTATE_90_CLOCKWISE)
+    return array
+
 #process image and save it in img.png
 #upscale: width of the target image
 #smoothing: how round you want it to be
@@ -141,6 +147,7 @@ def process(array, upscale, smoothing, wavyness):
     array = waves(array, wavyness, smoothing)
     array = smooth(array, smoothing)
     array = binary(array)
+    array = rotate(array)
     cv2.imwrite("img.png", array)
     return array
 
@@ -275,8 +282,10 @@ if __name__ == "__main__":
             [0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
             [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
             [1, 1, 1, 0, 0, 0, 1, 0, 0, 0]]
+    arr = np.array(arr)
+    arr = cv2.rotate(arr, cv2.ROTATE_90_COUNTERCLOCKWISE)
     img =process(arr, 500, 0, 0)
-    img = addPoints(img, 50, [(4.5, 2.5), (6.4, 4.5)],[(1, 2, "cool thing here"), (3, 4, "bad thing here")], 1)
+    img = addPoints(img, 50, [(4.4, 2.5), (6.4, 4.5)],[(1, 2, "cool thing here"), (3, 4, "bad thing here")], 1)
     img = drawGrid(img, 50, "Gray")
     cv2.imshow("img.jpg", img)
     cv2.waitKey(0)
