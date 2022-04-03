@@ -172,6 +172,26 @@ def backButtons(preset):
         instructions.grid(row=0, column=0, columnspan=2)
         selectBut.grid(row=1, column=0, columnspan=2)
         imgLabel.grid(row=2, column=0, columnspan=2)
+    elif preset == 5:
+        global listOfDoorDrags
+        global listOfNumDrags
+        # removing unnecessary widgets
+        gridWidLab.grid_forget()
+        gridWidSlid.grid_forget()
+        gridColLab.grid_forget()
+        gridColDrop.grid_forget()
+        picBackground.grid_forget()
+        doorLab.grid_forget()
+        doorBut.grid_forget()
+        markLab.grid_forget()
+        markBut.grid_forget()
+        descLab.grid_forget()
+        descEnt.grid_forget()
+        backCanStart.grid_forget()
+        compiBut.grid_forget()
+        startWidgets()
+        listOfDoorDrags = []
+        listOfNumDrags = []
 
 # this section is the photo processing section
 def runPhotoProcess():
@@ -277,7 +297,8 @@ def getImage():
 # all of these widgets are used/related to the picture dungeon creation tool
 instructions = Label(root, text='Please select an image using the button below that you would like to convert into '
                                 'a layout.\nMake sure the image has clear lines and is drawn on a white background '
-                                'with either a pencil or other dark colored utensil.')
+                                'with a dark colored utensil. \n The image must be cropped such that the entrances'
+                                'and exits touch the edge of the picture')
 enterPic = Button(root, text="Generate Layout from Picture", command=picScreen)
 enterPic.grid(row=4, column=0, columnspan=2)
 selectBut = Button(root, text="Select Image", command=getImage)
@@ -469,7 +490,8 @@ def startCanvas():
     markBut.grid(row=3, column=1)
     descLab.grid(row=7, column=2)
     descEnt.grid(row=7, column=3)
-    compiBut.grid(row=4, column=0, columnspan=2)
+    backCanStart.grid(row=4, column=0)
+    compiBut.grid(row=4, column=1)
     picBackground.create_rectangle(400, 300, 500, 500, fill='red')
     canProcess(0)
 
@@ -530,6 +552,7 @@ def compiCan():
     markBut.grid_forget()
     descLab.grid_forget()
     descEnt.grid_forget()
+    backCanStart.grid_forget()
     compiBut.grid_forget()
 
     saveTxtBut.grid(row=0, column=0)
@@ -548,15 +571,17 @@ gridColDrop = OptionMenu(root, color, "Black", "White", "Gray", "Blue", "Red",
                          "Yellow", "Orange", "Purple", "Green", command=canProcess)
 picBackground = Canvas(root, height=500, width=500)
 doorLab = Label(root, text="Button creates a new door. Drag between walls"
-                           "\n where you would like a door formed.")
+                           "\nwhere you would like a door formed. Drag "
+                           "\nmarker into the red box to delete it.")
 doorBut = Button(root, text='Door Markers', command=addDoor)
 markLab = Label(root, text='Button creates a new marker. Marker will have'
                            '\ndescription and number associated with it.'
                            '\nEnter description into the box on the side '
-                           '\nwhile clicking on marker.')
+                           '\nwhile clicking on marker. Drag marker into'
+                           '\nthe red box to delete it.')
 markBut = Button(root, text='Event Markers', command=addEventMarker)
 descLab = Label(root, text='Current marker active: __                                                 Description:')
-
+backCanStart = Button(root, text='Back to Start', command=lambda: backButtons(5))
 # callback is for the onchange for the entry descriptions
 def callback(sv):
     update()
