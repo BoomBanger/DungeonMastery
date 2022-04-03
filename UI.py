@@ -244,7 +244,7 @@ def downscaling():
     downScalBut.grid(row=2, column=1)
     backScalePic.grid(row=2, column=0)
 
-
+    downScaleProcess(30)
 
 downScalSlid = Scale(root, orient=HORIZONTAL, from_=30, to=100, command=downScaleProcess)
 downScalLab = Label(root, text="The values on the slider represent the width"
@@ -254,7 +254,7 @@ downScalBut = Button(root, text='Downscale', command=lambda: goToProcess(3))
 backScalePic = Button(root, text='Back to Picture Select', command=lambda: backButtons(4))
 
 
-# final function of program, leads to canvas.py
+# final function of program, leads to canvas
 def toDetail():
     # removes unnecessary widgets
     scaleLab.grid_forget()
