@@ -117,9 +117,11 @@ def drawGrid(arr, width:int, color:str):
             "Orange": (0, 255, 165),
             "Purple": (250, 230, 230),
             "Green": (0, 255, 0)}
-        
-        h, w = arr.shape
-        arr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
+        if len(arr.shape) == 2:
+            h, w = arr.shape
+            arr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
+        else:
+            h, w, _ = arr.shape
         for x in range(0, w, width):
             cv2.line(arr, (x, 0), (x, h), col[color])
         for y in range(0, h, width):
@@ -224,12 +226,12 @@ def addDoor(array, color, door):
     cv2.line(color, bestPoints1, bestPoints2, (42, 42, 165), thickness=5)
     return color
     
-def addNumbers(color, numbers):
+def addNumbers(color, numbers, fontSize):
     for i, (x, y) in enumerate(numbers):
-        cv2.putText(color, "#" + str(i + 1), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), thickness=3)
+        cv2.putText(color, "#" + str(i + 1), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), thickness=fontSize)
     return color
 
-def addPoints(array, doors, numbers):
+def addPoints(array, doors, numbers, fontSize):
     color = cv2.cvtColor(array, cv2.COLOR_GRAY2BGR)
     for door in doors:
         color = addDoor(array, color, door)
@@ -248,6 +250,7 @@ if __name__ == "__main__":
             [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
             [1, 1, 1, 0, 0, 0, 1, 0, 0, 0]]
     img =process(arr, 1000, 5, 5)
-    img = addPoints(img, [(450, 250), (750, 450)],[(100, 200), (300, 400)])
+    img = addPoints(img, [(450, 250), (750, 450)],[(100, 200), (300, 400)], 1)
+    img = drawGrid(img, 50, "Gray")
     cv2.imshow("img.jpg", img)
     cv2.waitKey(0)
