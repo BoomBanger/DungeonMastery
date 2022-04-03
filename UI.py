@@ -1,9 +1,10 @@
 import tkinter.filedialog
-
+import canvas
 import Processing
 import numpy as np
 from tkinter import *
 from PIL import ImageTk, Image
+
 
 root = Tk()
 root.title("BoomBanger Dungeon Generator")
@@ -79,6 +80,7 @@ def backButtons(preset):
         generateBut.grid_forget()
         downloadBut.grid_forget()
         backConvergeStart.grid_forget()
+        detailBut.grid_forget()
         # placing widgets back on start screen
         startWidgets()
     elif preset == 3:
@@ -164,6 +166,26 @@ downScalLab = Label(root, text="The values on the slider represent the width"
 downScalBut = Button(root, text='Downscale', command=lambda: goToProcess(3))
 backScalePic = Button(root, text='Back to Picture Select', command=lambda: backButtons(4))
 
+
+# final function of program, leads to canvas.py
+def toDetail():
+    # removes unnecessary widgets
+    scaleLab.grid_forget()
+    scaleSlid.grid_forget()
+    smoothLab.grid_forget()
+    smoothSlid.grid_forget()
+    roughLab.grid_forget()
+    roughSlid.grid_forget()
+    mapLab.grid_forget()
+    generateLab.grid_forget()
+    generateBut.grid_forget()
+    downloadBut.grid_forget()
+    backConvergeStart.grid_forget()
+    detailBut.grid_forget()
+    # starts canvas file
+    canvas.startCanvas(wallArray)
+
+
 # runs all the update screen information once a user selects a photo
 def getImage():
     picId = tkinter.filedialog.askopenfilename()
@@ -237,6 +259,7 @@ generateLab = Label(root, text='Rerun generation process with same parameters')
 generateBut = Button(root, text='Generate', command=lambda: process(0))
 downloadBut = Button(root, text='Download', command=downloadPic)
 backConvergeStart = Button(root, text='Back to Start', command=lambda: backButtons(2))
+detailBut = Button(root, text='Detail Map', command=toDetail)
 
 
 # runs the image generation on the user created dungeon layout:   1 is non-photo, 2 is photo, 3 is downscale
@@ -258,6 +281,7 @@ def goToProcess(preset):
         contin.grid_forget()
         downSizBut.grid_forget()
         downLab.grid_forget()
+        backPicStart.grid_forget()
     elif preset == 3:
         wallArray = sampleArray
         downScalSlid.grid_forget()
@@ -276,6 +300,7 @@ def goToProcess(preset):
     generateBut.grid(row=5, column=2)
     backConvergeStart.grid(row=6, column=0)
     downloadBut.grid(row=6, column=1)
+    detailBut.grid(row=6, column=2)
 
     # hopefully starts map right next to stuff pls and tlhanmk oyou
     process(0)
