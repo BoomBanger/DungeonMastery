@@ -126,6 +126,7 @@ def drawGrid(arr, width:int, color:str):
             cv2.line(arr, (x, 0), (x, h), col[color])
         for y in range(0, h, width):
             cv2.line(arr, (0, y), (w, y), col[color])
+
     return arr
 
 #process image and save it in img.png

@@ -1,5 +1,4 @@
 import tkinter.filedialog
-import canvas
 import Processing
 import numpy as np
 from tkinter import *
@@ -9,10 +8,14 @@ if platform.system() == "Darwin":
     from tkmacosx import Button
 
 root = Tk()
-root.title("BoomBanger Dungeon Generator")
+root.title("Dungeon Mastery")
 buttonArray = []
 wallArray = []
 sampleArray = []
+listOfDoorDrags = []
+listOfNumDrags = []
+mapOldNewWidthRatio = 0
+activeDraggable = None
 finalPic = ["LOL PICTURE GOES HERE"]
 
 # beginning page widgets
@@ -24,6 +27,51 @@ xBut = Scale(root, orient='horizontal', from_=5, to=20)
 xBut.grid(row=0, column=1)
 yBut = Scale(root, orient='horizontal', from_=5, to=20)
 yBut.grid(row=1, column=1)
+
+
+class Draggable:
+    def __init__(self, canvas, x, y, r, ):
+        self.x = x
+        self.y = y
+        self.description = None
+        self.canvas = canvas
+        self.mouseX = None
+        self.mouseY = None
+        self.marker = canvas.create_oval(x-r, y-r, x+r, y+r, fill='gray')
+        canvas.tag_bind(self.marker, "<ButtonPress-1>", self.startDrag)
+        canvas.tag_bind(self.marker, "<ButtonRelease-1>", self.stopDrag)
+        canvas.tag_bind(self.marker, "<B1-Motion>", self.drag)
+
+    def getTuple(self):
+        if self.description is not None:
+            return self.x, self.y, self.description
+        return self.x, self.y
+
+    def changePos(self, dx, dy):
+        self.x += dx
+        self.y += dy
+        self.canvas.move(self.marker, dx, dy)
+
+    def startDrag(self, event):
+        global activeDraggable
+        self.mouseX = event.x
+        self.mouseY = event.y
+        activeDraggable = self
+        canProcess(0)
+
+    def stopDrag(self, event):
+        self.mouseX = None
+        self.mouseY = None
+        canProcess(0)
+
+    def drag(self, event):
+        if self.mouseX is not None and self.mouseY is not None:
+            dx = event.x - self.mouseX
+            dy = event.y - self.mouseY
+            self.changePos(dx, dy)
+            self.mouseX = event.x
+            self.mouseY = event.y
+            canProcess(0)
 
 
 # gets dimensions of dungeon and creates it
@@ -185,7 +233,7 @@ def toDetail():
     backConvergeStart.grid_forget()
     detailBut.grid_forget()
     # starts canvas file
-    canvas.startCanvas(wallArray)
+    startCanvas()
 
 
 # runs all the update screen information once a user selects a photo
@@ -358,5 +406,85 @@ def makeWalls(x, y):
         wallArray[x][y] = 1
 
 
+def addDoor():
+    d = Draggable(picBackground, 460, 40, 5)
+    listOfDoorDrags.append(d)
+    canProcess(0)
+
+
+def addEventMarker():
+    global activeDraggable
+    e = Draggable(picBackground, 460, 140, 5)
+    e.description = ''
+    listOfNumDrags.append(e)
+    activeDraggable = e
+    canProcess(0)
+
+
+# takes wall array has parameter
+def startCanvas():
+    gridWidLab.grid(row=0, column=0)
+    gridWidSlid.grid(row=0, column=1)
+    gridColLab.grid(row=1, column=0)
+    gridColDrop.grid(row=1, column=1)
+    picBackground.grid(row=0, column=2, rowspan=7, columnspan=2)
+    doorLab.grid(row=2, column=0)
+    doorBut.grid(row=2, column=1)
+    markLab.grid(row=3, column=0)
+    markBut.grid(row=3, column=1)
+    descLab.grid(row=7, column=2)
+    descEnt.grid(row=7, column=3)
+    canProcess(0)
+
+
+# produces additional details on picture
+def canProcess(x):
+    global finalPic
+    global mapOldNewWidthRatio
+    global activeDraggable
+    if activeDraggable and activeDraggable.description is not None:
+        activeDraggable.description = descEnt.get()
+
+    # processes doors and number markers into image
+    tempArray = Processing.addPoints(finalPic, mapOldNewWidthRatio, [door.getTuple() for door in listOfDoorDrags],
+                                     [number.getTuple() for number in listOfNumDrags], 1)
+
+    # this changes the grid attributes, HAS to go after door processing
+    tempArray = Processing.drawGrid(tempArray, int(gridWidSlid.get()), color.get())
+    Processing.downloadImg(tempArray, "sample.png")
+    img = Image.open("sample.png")
+    sampleMap = ImageTk.PhotoImage(img)
+
+    mapOldNewWidthRatio = sampleMap.width()/400
+    aspectRatio = sampleMap.height() / sampleMap.width()
+
+    resized_sampleMap = img.resize((400, int(400 * aspectRatio)))
+    new_sampleMap = ImageTk.PhotoImage(resized_sampleMap)
+    picture = picBackground.create_image(20, 0, anchor=NW, image=new_sampleMap)
+    picBackground.image = new_sampleMap
+    picBackground.tag_lower(picture)
+
+
+
+
+gridWidLab = Label(root, text="Determines pixel length of grid squares")
+gridWidSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=canProcess)
+gridColLab = Label(root, text="Determines the color of the grid lines")
+color = StringVar(root)
+color.set("Gray")  # default color for grid lines
+gridColDrop = OptionMenu(root, color, "Black", "White", "Gray", "Blue", "Red",
+                         "Yellow", "Orange", "Purple", "Green", command=canProcess)
+picBackground = Canvas(root, height=500, width=500)
+doorLab = Label(root, text="Button creates a new door. Drag between walls"
+                           "\n where you would like a door formed.")
+doorBut = Button(root, text='Door Markers', command=addDoor)
+markLab = Label(root, text='Button creates a new marker. Marker will have'
+                           '\ndescription and number associated with it.'
+                           '\nEnter description into the box on the side '
+                           '\nwhile clicking on marker. Description can be'
+                           '\n of loot, encounters, or any other event.')
+markBut = Button(root, text='Event Markers', command=addEventMarker)
+descLab = Label(root, text='Current marker active: __                                                 Description:')
+descEnt = Entry(root)
 print("HI")
 root.mainloop()
