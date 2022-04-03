@@ -10,6 +10,7 @@ root = Tk()
 root.title("BoomBanger Dungeon Generator")
 buttonArray = []
 wallArray = []
+finalPic = ["LOL PICTURE GOES HERE"]
 
 # beginning page widgets
 xLabel = Label(root, text="Dungeon Width (5ft per block)")
@@ -97,14 +98,19 @@ picLabel = Label(root)
 contin = Button(root, text="Submit Photo", command=runPhotoProcess)
 
 
+def downloadPic():
+    Processing.downloadImg(finalPic, tkinter.filedialog.asksaveasfilename())
+
+
 # updates the image to match specifications user makes with widgets
 def process(x):
+    global finalPic
     scale = scaleSlid.get()
     smooth = smoothSlid.get()
     rough = roughSlid.get()
     gridWid = gridWidSlid.get()
     gridColor = color.get()  # add to processing later, QoL
-    Processing.process(wallArray, scale, smooth, rough, gridWid, gridColor)
+    finalPic = Processing.process(wallArray, scale, smooth, rough, gridWid, gridColor)
 
     map = Image.open("img.png")
     tkmap = ImageTk.PhotoImage(map)
@@ -130,6 +136,9 @@ color.set("Gray")  # default color for grid lines
 gridColDrop = OptionMenu(root, color, "Black", "White", "Gray", "Blue", "Red",
                          "Yellow", "Orange", "Purple", "Green", command=process)
 mapLab = Label(root)
+generateLab = Label(root, text='Rerun generation process with same parameters')
+generateBut = Button(root, text='Generate', command=lambda: process(0))
+downloadBut = Button(root, text='Download', command=downloadPic)
 
 # runs the image generation on the user created dungeon layout:   1 is non-photo, 2 is photo
 def goToProcess(preset):
@@ -158,7 +167,11 @@ def goToProcess(preset):
     gridWidSlid.grid(row=3, column=1)
     gridColLab.grid(row=4, column=0)
     gridColDrop.grid(row=4, column=1)
+    generateLab.grid(row=5, column=0)
+    generateBut.grid(row=5, column=1)
 
+    # hopefully starts map right next to stuff pls and tlhanmk oyou
+    process(0)
 
 refineMap = Button(root, text="Process User-Drawn Map", height=2, width=20, command=lambda: goToProcess(1))
 
