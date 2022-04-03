@@ -97,23 +97,31 @@ picLabel = Label(root)
 contin = Button(root, text="Submit Photo", command=runPhotoProcess)
 
 
-#
-def process():
+# updates the image to match specifications user makes with widgets
+def process(x):
     scale = scaleSlid.get()
     smooth = smoothSlid.get()
     rough = roughSlid.get()
     gridWid = gridWidSlid.get()
-    gridColor = color.get()
+    gridColor = color.get()  # add to processing later, QoL
     Processing.process(wallArray, scale, smooth, rough, gridWid)
 
+    map = Image.open("img.png")
+    tkmap = ImageTk.PhotoImage(map)
+    aspectRatio = tkmap.height() / tkmap.width()
+    resized_map = map.resize((300, int(300 * aspectRatio)), Image.Resampling.LANCZOS)
+    new_map = ImageTk.PhotoImage(resized_map)
+    mapLab.image = new_map
+    mapLab.config(image=new_map)
+    mapLab.grid(row=0, rowspan=7, column=3)
 
 # creation of all the image editing widgets
 scaleLab = Label(root, text="Scale (width of picture in pixels)")
-scaleSlid = Scale(root, orient=HORIZONTAL, length=150, resolution=10, from_=250, to=1500, command=process)
+scaleSlid = Scale(root, orient=HORIZONTAL, length=150, resolution=10, from_=500, to=1500, command=process)
 smoothLab = Label(root, text="Smoothness (Higher means more rounded)")
 smoothSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=process)
 roughLab = Label(root, text="Bumpiness (Higher means more bumps")
-roughSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=process)
+roughSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=20, command=process)
 gridWidLab = Label(root, text="Determines how many pixels a grid square is")
 gridWidSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=process)
 gridColLab = Label(root, text="Determines the color of the grid lines")
@@ -121,7 +129,7 @@ color = StringVar(root)
 color.set("Gray")  # default color for grid lines
 gridColDrop = OptionMenu(root, color, "Black", "White", "Gray", "Blue", "Red",
                          "Yellow", "Orange", "Purple", "Green", command=process)
-
+mapLab = Label(root)
 
 # runs the image generation on the user created dungeon layout:   1 is non-photo, 2 is photo
 def goToProcess(preset):
