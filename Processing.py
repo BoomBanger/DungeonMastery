@@ -237,8 +237,26 @@ def addNumbers(color, numbers, fontSize, fileLocation):
             f.write("#" + str(i) + "\n\n" + description + "\n\n\n")
     return color
 
-def addPoints(array, doors, numbers, fontSize, fileLocation=None):
+def rescale(scale, point):
+    x, y = point[0], point[1]
+    x *= scale
+    y *= scale
+    x, y = int(np.round(x)), int(np.round(y))
+    if len(point) > 2:
+        des = point[2]
+        return x, y, des
+    return x, y
+    
+def rescaleList(scale, points):
+    newList = []
+    for point in points:
+        newList.append(rescale(scale, point))
+    return newList
+
+def addPoints(array, scale, doors, numbers, fontSize, fileLocation=None):
     color = cv2.cvtColor(array, cv2.COLOR_GRAY2BGR)
+    doors = rescaleList(scale, doors)
+    numbers = rescaleList(scale, numbers)
     for door in doors:
         color = addDoor(array, color, door)
     color = addNumbers(color, numbers, fontSize, fileLocation)
@@ -253,8 +271,8 @@ if __name__ == "__main__":
             [0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
             [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
             [1, 1, 1, 0, 0, 0, 1, 0, 0, 0]]
-    img =process(arr, 1000, 5, 5)
-    img = addPoints(img, [(450, 250), (750, 450)],[(100, 200, "cool thing here"), (300, 400, "bad thing here")], 1, "description.txt")
+    img =process(arr, 500, 5, 5)
+    img = addPoints(img, 50, [(4.5, 2.5), (7.5, 4.5)],[(1, 2, "cool thing here"), (3, 4, "bad thing here")], 1)
     img = drawGrid(img, 50, "Gray")
     cv2.imshow("img.jpg", img)
     cv2.waitKey(0)
