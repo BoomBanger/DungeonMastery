@@ -19,11 +19,12 @@ activeDraggable = None
 finalPic = ["LOL PICTURE GOES HERE"]
 
 # beginning page widgets
-dunLab = Label(root, image='dungeon.png')
+lolDragon = ImageTk.PhotoImage(Image.open('dungeon.png'))
+dunLab = Label(root, image=lolDragon)
 dunLab.grid(row=0, column=0, columnspan=2)
 xLabel = Label(root, text="Layout Width (5ft per block)")
 xLabel.grid(row=1, column=0)
-yLabel = Label(root, text="Layout Length (5ft per block)")
+yLabel = Label(root, text="Layout Height (5ft per block)")
 yLabel.grid(row=2, column=0)
 xBut = Scale(root, orient='horizontal', from_=5, to=20)
 xBut.grid(row=1, column=1)
