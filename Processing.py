@@ -107,24 +107,23 @@ def waves(arr, wavyness:int, smoothing:int):
 
 #draws grid on {arr} with a spacing of {width} pixels
 def drawGrid(arr, width:int, color:str):
-    col = {"Black": (0, 0, 0),
-           "White": (255, 255, 255),
-           "Gray": (128, 128, 128),
-           "Blue:": (255, 0, 0),
-           "Red": (0, 0, 255),
-           "Yellow": (0, 255, 255),
-           "Orange": (0, 255, 165),
-           "Purple": (250, 230, 230),
-           "Green": (0, 255, 0)}
-    
-    
-    
-    h, w = arr.shape
-    arr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
-    for x in range(0, w, width):
-        cv2.line(arr, (x, 0), (x, h), col[color])
-    for y in range(0, h, width):
-        cv2.line(arr, (0, y), (w, y), col[color])
+    if width:
+        col = {"Black": (0, 0, 0),
+            "White": (255, 255, 255),
+            "Gray": (128, 128, 128),
+            "Blue:": (255, 0, 0),
+            "Red": (0, 0, 255),
+            "Yellow": (0, 255, 255),
+            "Orange": (0, 255, 165),
+            "Purple": (250, 230, 230),
+            "Green": (0, 255, 0)}
+        
+        h, w = arr.shape
+        arr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
+        for x in range(0, w, width):
+            cv2.line(arr, (x, 0), (x, h), col[color])
+        for y in range(0, h, width):
+            cv2.line(arr, (0, y), (w, y), col[color])
     return arr
 
 #process image and save it in img.png
@@ -132,7 +131,7 @@ def drawGrid(arr, width:int, color:str):
 #smoothing: how round you want it to be
 #wavyness: how bumpy you want it to be
 #gridWidth: pixel width between gridlines. 0 is no grid
-def process(array, upscale, smoothing, wavyness, gridWidth, gridColor):
+def process(array, upscale, smoothing, wavyness):
     smoothing = smoothing * 2 + 1
     wavyness = wavyness * 2 + 1
     array = np.float32(array) * 255
@@ -141,8 +140,6 @@ def process(array, upscale, smoothing, wavyness, gridWidth, gridColor):
     array = waves(array, wavyness, smoothing)
     array = smooth(array, smoothing)
     array = binary(array)
-    if gridWidth:
-        array = drawGrid(array, gridWidth, gridColor)
     cv2.imwrite("img.png", array)
     return array
 
@@ -170,6 +167,21 @@ def fromImage(file):
     
 def downloadImg(array, file):
     cv2.imwrite(file, array)
+    
+
+def length(m, x, y):
+    pass
+    
+def addDoor(array, door):
+    x, y = door
+    if not array[x,y]:
+        return array
+    
+
+def addPoints(array, doors, loot, encounters, numbers):
+    for door in doors:
+        array = addDoor(array, door)
+    
     
     
 if __name__ == "__main__":
