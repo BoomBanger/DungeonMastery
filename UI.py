@@ -58,6 +58,7 @@ class Draggable:
         self.mouseY = event.y
         activeDraggable = self
         canProcess(0)
+        onClick()
 
     def stopDrag(self, event):
         self.mouseX = None
@@ -420,6 +421,21 @@ def addEventMarker():
     activeDraggable = e
     canProcess(0)
 
+# hopefully works with descriptions
+def onClick():
+    global activeDraggable
+    # handling the description entry and label
+    if activeDraggable and activeDraggable.description is not None:
+        num = listOfNumDrags.index(activeDraggable) + 1
+        descLab.config(text='Current marker active: #' + str(num) +
+                            '                                                 Description:')
+        sv.set(activeDraggable.description)
+
+
+# updates the descriptions of event markers
+def update():
+    global activeDraggable
+    activeDraggable.description = descEnt.get()
 
 # takes wall array has parameter
 def startCanvas():
@@ -434,6 +450,7 @@ def startCanvas():
     markBut.grid(row=3, column=1)
     descLab.grid(row=7, column=2)
     descEnt.grid(row=7, column=3)
+    compiBut.grid(row=4, column=0, columnspan=2)
     canProcess(0)
 
 
@@ -441,13 +458,10 @@ def startCanvas():
 def canProcess(x):
     global finalPic
     global mapOldNewWidthRatio
-    global activeDraggable
-    if activeDraggable and activeDraggable.description is not None:
-        activeDraggable.description = descEnt.get()
 
     # processes doors and number markers into image
     tempArray = Processing.addPoints(finalPic, mapOldNewWidthRatio, [door.getTuple() for door in listOfDoorDrags],
-                                     [number.getTuple() for number in listOfNumDrags], 1)
+                                     [number.getTuple() for number in listOfNumDrags], 3)
 
     # this changes the grid attributes, HAS to go after door processing
     tempArray = Processing.drawGrid(tempArray, int(gridWidSlid.get()), color.get())
@@ -464,7 +478,8 @@ def canProcess(x):
     picBackground.image = new_sampleMap
     picBackground.tag_lower(picture)
 
-
+# compiles notes and map into final product
+def compiCan():
 
 
 gridWidLab = Label(root, text="Determines pixel length of grid squares")
@@ -485,6 +500,13 @@ markLab = Label(root, text='Button creates a new marker. Marker will have'
                            '\n of loot, encounters, or any other event.')
 markBut = Button(root, text='Event Markers', command=addEventMarker)
 descLab = Label(root, text='Current marker active: __                                                 Description:')
-descEnt = Entry(root)
+
+# callback is for the onchange for the entry descriptions
+def callback(sv):
+    update()
+sv = StringVar()
+sv.trace("w", lambda name, index, mode, sv=sv: callback(sv))
+descEnt = Entry(root, textvariable=sv)
+compiBut = Button(root, text='Compile Notes and Image', command=compiCan)
 print("HI")
 root.mainloop()
