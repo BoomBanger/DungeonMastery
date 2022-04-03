@@ -1,5 +1,4 @@
 import tkinter.filedialog
-import canvas
 import Processing
 import numpy as np
 from tkinter import *
@@ -185,7 +184,7 @@ def toDetail():
     backConvergeStart.grid_forget()
     detailBut.grid_forget()
     # starts canvas file
-    canvas.startCanvas(wallArray)
+    startCanvas()
 
 
 # runs all the update screen information once a user selects a photo
@@ -357,6 +356,47 @@ def makeWalls(x, y):
         buttonArray[x][y].config(bg='white')
         wallArray[x][y] = 1
 
+
+# takes wall array has parameter
+def startCanvas():
+    gridWidLab.grid(row=0, column=0)
+    gridWidSlid.grid(row=0, column=1)
+    gridColLab.grid(row=1, column=0)
+    gridColDrop.grid(row=1, column=1)
+    picBackground.grid(row=0, column=2, rowspan=7)
+
+
+# produces additional details on picture
+def canProcess(x):
+    global finalPic
+
+    # this changes the grid attributes, HAS to go after door processing
+    print(finalPic.shape)
+    tempArray = Processing.drawGrid(wallArray, int(gridWidSlid.get()), color.get())
+
+    Processing.downloadImg(tempArray, "sample.png")
+    sampleMap = ImageTk.PhotoImage(Image.open("img.png"))
+    picBackground.create_image(20, 20, anchor=NW, image=sampleMap)
+
+    '''
+    img = Image.open(picId)
+
+    tkimage = ImageTk.PhotoImage(img)
+    aspectRatio = tkimage.height()/tkimage.width()
+
+    resized_image = img.resize((300, int(300 * aspectRatio)))
+    new_image = ImageTk.PhotoImage(resized_image)
+    picLabel.image = new_image'''
+
+
+gridWidLab = Label(root, text="Determines how many pixels a grid square is")
+gridWidSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=canProcess)
+gridColLab = Label(root, text="Determines the color of the grid lines")
+color = StringVar(root)
+color.set("Gray")  # default color for grid lines
+gridColDrop = OptionMenu(root, color, "Black", "White", "Gray", "Blue", "Red",
+                         "Yellow", "Orange", "Purple", "Green", command=canProcess)
+picBackground = Canvas(root, height=500, width=500)
 
 print("HI")
 root.mainloop()

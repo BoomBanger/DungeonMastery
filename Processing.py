@@ -119,7 +119,6 @@ def drawGrid(arr, width:int, color:str):
             "Green": (0, 255, 0)}
         if len(arr.shape) == 2:
             h, w = arr.shape
-            arr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
         else:
             h, w, _ = arr.shape
         for x in range(0, w, width):
