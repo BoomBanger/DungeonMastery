@@ -1,6 +1,3 @@
-from curses import noecho
-from distutils.log import debug
-from random import random
 import numpy as np
 import cv2
 
