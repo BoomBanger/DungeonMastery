@@ -226,16 +226,22 @@ def addDoor(array, color, door):
     cv2.line(color, bestPoints1, bestPoints2, (42, 42, 165), thickness=5)
     return color
     
-def addNumbers(color, numbers, fontSize):
-    for i, (x, y) in enumerate(numbers):
-        cv2.putText(color, "#" + str(i + 1), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), thickness=fontSize)
+def addNumbers(color, numbers, fontSize, fileLocation):
+    if not fileLocation:
+        for i, (x, y, description) in enumerate(numbers):
+            cv2.putText(color, "#" + str(i + 1), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), thickness=fontSize)
+        return color
+    with open(fileLocation, "w") as f:
+        for i, (x, y, description) in enumerate(numbers):
+            cv2.putText(color, "#" + str(i + 1), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), thickness=fontSize)
+            f.write("#" + str(i) + "\n\n" + description + "\n\n\n")
     return color
 
-def addPoints(array, doors, numbers, fontSize):
+def addPoints(array, doors, numbers, fontSize, fileLocation=None):
     color = cv2.cvtColor(array, cv2.COLOR_GRAY2BGR)
     for door in doors:
         color = addDoor(array, color, door)
-    color = addNumbers(color, numbers)
+    color = addNumbers(color, numbers, fontSize, fileLocation)
     return color
     
     
@@ -250,7 +256,7 @@ if __name__ == "__main__":
             [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
             [1, 1, 1, 0, 0, 0, 1, 0, 0, 0]]
     img =process(arr, 1000, 5, 5)
-    img = addPoints(img, [(450, 250), (750, 450)],[(100, 200), (300, 400)], 1)
+    img = addPoints(img, [(450, 250), (750, 450)],[(100, 200, "cool thing here"), (300, 400, "bad thing here")], 1, "description.txt")
     img = drawGrid(img, 50, "Gray")
     cv2.imshow("img.jpg", img)
     cv2.waitKey(0)
