@@ -244,8 +244,6 @@ def addPoints(array, doors, numbers, fontSize, fileLocation=None):
     color = addNumbers(color, numbers, fontSize, fileLocation)
     return color
     
-    
-    
 if __name__ == "__main__":
     arr =   [[0, 1, 0, 0, 0, 0, 1, 1, 0, 0],
             [0, 1, 1, 1, 0, 0, 1, 1, 0, 0],

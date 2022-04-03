@@ -4,7 +4,9 @@ import Processing
 import numpy as np
 from tkinter import *
 from PIL import ImageTk, Image
-
+import platform
+if platform.system() == "Darwin": 
+    from tkmacosx import Button
 
 root = Tk()
 root.title("BoomBanger Dungeon Generator")
@@ -195,7 +197,7 @@ def getImage():
     tkimage = ImageTk.PhotoImage(img)
     aspectRatio = tkimage.height()/tkimage.width()
 
-    resized_image = img.resize((300, int(300 * aspectRatio)), Image.Resampling.LANCZOS)
+    resized_image = img.resize((300, int(300 * aspectRatio)))
     new_image = ImageTk.PhotoImage(resized_image)
     picLabel.image = new_image
     picLabel.config(image=new_image)
@@ -240,7 +242,7 @@ def process(x):
     map = Image.open("img.png")
     tkmap = ImageTk.PhotoImage(map)
     aspectRatio = tkmap.height() / tkmap.width()
-    resized_map = map.resize((300, int(300 * aspectRatio)), Image.Resampling.LANCZOS)
+    resized_map = map.resize((300, int(300 * aspectRatio)))
     new_map = ImageTk.PhotoImage(resized_map)
     mapLab.image = new_map
     mapLab.config(image=new_map)
@@ -305,9 +307,9 @@ def goToProcess(preset):
     # hopefully starts map right next to stuff pls and tlhanmk oyou
     process(0)
 
-
-refineMap = Button(root, text="Process User-Drawn Map", height=2, width=20, command=lambda: goToProcess(1))
-backCompStart = Button(root, text='Back to Start', height=2, width=20, command=lambda: backButtons(1))
+h, w = (2, 20) if platform.system() != "Darwin" else (30, 300)
+refineMap = Button(root, text="Process User-Drawn Map", height=h, width=w, command=lambda: goToProcess(1))
+backCompStart = Button(root, text='Back to Start', height=h, width=w, command=lambda: backButtons(1))
 
 
 # creates dungeon and gives 2d array of buttons and their color values
@@ -327,6 +329,9 @@ def createMap(x, y):
     else:
         h = h
         w = w
+    if platform.system() == "Darwin":
+        h *= 20
+        w = h
     # generates the amount of buttons in each row and column for the button array
     for row in range(y):
         # yArray is each row, and once each row is done it gets appended to the final list
