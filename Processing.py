@@ -99,7 +99,7 @@ def randomize(arr, size:int):
 
 #does wavyness stuff on multiple scales with {wavyness} numbe rof operations
 def waves(arr, wavyness:int, smoothing:int):
-    step = int(wavyness / 5)
+    step = int(wavyness / 7) + 1
     for w in range(wavyness, 1, -step):
         val = 2*w + 1
         arr = randomize(arr, val)
