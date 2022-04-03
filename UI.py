@@ -19,14 +19,16 @@ activeDraggable = None
 finalPic = ["LOL PICTURE GOES HERE"]
 
 # beginning page widgets
-xLabel = Label(root, text="Dungeon Width (5ft per block)")
-xLabel.grid(row=0, column=0)
-yLabel = Label(root, text="Dungeon Length (5ft per block)")
-yLabel.grid(row=1, column=0)
+dunLab = Label(root, image='dungeon.png')
+dunLab.grid(row=0, column=0, columnspan=2)
+xLabel = Label(root, text="Layout Width (5ft per block)")
+xLabel.grid(row=1, column=0)
+yLabel = Label(root, text="Layout Length (5ft per block)")
+yLabel.grid(row=2, column=0)
 xBut = Scale(root, orient='horizontal', from_=5, to=20)
-xBut.grid(row=0, column=1)
+xBut.grid(row=1, column=1)
 yBut = Scale(root, orient='horizontal', from_=5, to=20)
-yBut.grid(row=1, column=1)
+yBut.grid(row=2, column=1)
 
 
 class Draggable:
@@ -63,6 +65,7 @@ class Draggable:
     def stopDrag(self, event):
         self.mouseX = None
         self.mouseY = None
+        self.isTrash()
         canProcess(0)
 
     def drag(self, event):
@@ -73,6 +76,14 @@ class Draggable:
             self.mouseX = event.x
             self.mouseY = event.y
             canProcess(0)
+
+    def isTrash(self):
+        if self.x > 400 and self.y > 300:
+            self.canvas.delete(self.marker)
+            if self in listOfNumDrags:
+                listOfNumDrags.remove(self)
+            elif self in listOfDoorDrags:
+                listOfDoorDrags.remove(self)
 
 
 # gets dimensions of dungeon and creates it
@@ -85,6 +96,7 @@ def getXY():
     refineMap.grid(row=0, column=xBut.get()+1)
     backCompStart.grid(row=yBut.get()-1, column=xBut.get()+1)
     # these removes the startup screen buttons, allowing for map to take their place
+    dunLab.grid_forget()
     xLabel.grid_forget()
     yLabel.grid_forget()
     xBut.grid_forget()
@@ -93,20 +105,23 @@ def getXY():
     enterPic.grid_forget()
 
 
-enter = Button(root, text="Generate Blank Dungeon Map", command=getXY)
-enter.grid(row=2, column=0, columnspan=2)
+enter = Button(root, text="Generate Blank Layout Map", command=getXY)
+enter.grid(row=3, column=0, columnspan=2)
 
 
 def startWidgets():
-    xLabel.grid(row=0, column=0)
-    yLabel.grid(row=1, column=0)
-    xBut.grid(row=0, column=1)
-    yBut.grid(row=1, column=1)
-    enter.grid(row=2, column=0, columnspan=2)
-    enterPic.grid(row=3, column=0, columnspan=2)
+    dunLab.grid(row=0, column=0, columnspan=2)
+    xLabel.grid(row=1, column=0)
+    yLabel.grid(row=2, column=0)
+    xBut.grid(row=1, column=1)
+    yBut.grid(row=2, column=1)
+    enter.grid(row=3, column=0, columnspan=2)
+    enterPic.grid(row=4, column=0, columnspan=2)
 
 
-# contains all the back button widget info -- 1 is comp back, 2 is converge back, 3 is photo back, 4 is downscale back
+
+# contains all the back button widget info -- 1 is comp back, 2 is converge back, 3 is photo back, 4 is downscale back,
+# 5 is canvas to start, # 6 is from final canvas downloads to start
 def backButtons(preset):
     # for comp draw back to start screen
     if preset == 1:
@@ -175,6 +190,7 @@ def picScreen():
     yBut.grid_forget()
     enter.grid_forget()
     enterPic.grid_forget()
+    dunLab.grid_forget()
 
     instructions.grid(row=0, column=0, columnspan=2)
     selectBut.grid(row=1, column=0, columnspan=2)
@@ -259,10 +275,10 @@ def getImage():
 
 # all of these widgets are used/related to the picture dungeon creation tool
 instructions = Label(root, text='Please select an image using the button below that you would like to convert into '
-                                'a dungeon.\nMake sure the image has clear lines and is drawn on a white background '
+                                'a layout.\nMake sure the image has clear lines and is drawn on a white background '
                                 'with either a pencil or other dark colored utensil.')
-enterPic = Button(root, text="Generate Dungeon Using Picture", command=picScreen)
-enterPic.grid(row=3, column=0, columnspan=2)
+enterPic = Button(root, text="Generate Layout from Picture", command=picScreen)
+enterPic.grid(row=4, column=0, columnspan=2)
 selectBut = Button(root, text="Select Image", command=getImage)
 imgLabel = Label(root, text="Your image location is: ")
 picLabel = Label(root)
@@ -275,6 +291,7 @@ downLab = Label(root, text="Downscaling decreases the photo's resolution for bet
                            "\n"
                            "\n")
 backPicStart = Button(root, text='Back to Start', command=lambda: backButtons(3))
+
 
 def downloadPic():
     file = tkinter.filedialog.asksaveasfilename()
@@ -452,6 +469,7 @@ def startCanvas():
     descLab.grid(row=7, column=2)
     descEnt.grid(row=7, column=3)
     compiBut.grid(row=4, column=0, columnspan=2)
+    picBackground.create_rectangle(400, 300, 500, 500, fill='red')
     canProcess(0)
 
 
@@ -534,8 +552,7 @@ doorBut = Button(root, text='Door Markers', command=addDoor)
 markLab = Label(root, text='Button creates a new marker. Marker will have'
                            '\ndescription and number associated with it.'
                            '\nEnter description into the box on the side '
-                           '\nwhile clicking on marker. Description can be'
-                           '\n of loot, encounters, or any other event.')
+                           '\nwhile clicking on marker.')
 markBut = Button(root, text='Event Markers', command=addEventMarker)
 descLab = Label(root, text='Current marker active: __                                                 Description:')
 
@@ -544,6 +561,6 @@ def callback(sv):
     update()
 sv = StringVar()
 sv.trace("w", lambda name, index, mode, sv=sv: callback(sv))
-descEnt = Entry(root, textvariable=sv, height=2)
+descEnt = Entry(root, textvariable=sv)
 compiBut = Button(root, text='Compile Notes and Image', command=compiCan)
 root.mainloop()
