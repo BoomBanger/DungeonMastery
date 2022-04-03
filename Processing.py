@@ -119,12 +119,14 @@ def drawGrid(arr, width:int, color:str):
             "Green": (0, 255, 0)}
         if len(arr.shape) == 2:
             h, w = arr.shape
+            arr = cv2.cvtColor(arr, cv2.COLOR_GRAY2BGR)
         else:
             h, w, _ = arr.shape
         for x in range(0, w, width):
             cv2.line(arr, (x, 0), (x, h), col[color])
         for y in range(0, h, width):
             cv2.line(arr, (0, y), (w, y), col[color])
+
     return arr
 
 #process image and save it in img.png

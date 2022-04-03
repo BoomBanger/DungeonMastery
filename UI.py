@@ -371,11 +371,10 @@ def canProcess(x):
     global finalPic
 
     # this changes the grid attributes, HAS to go after door processing
-    print(finalPic.shape)
-    tempArray = Processing.drawGrid(wallArray, int(gridWidSlid.get()), color.get())
-
+    tempArray = Processing.drawGrid(finalPic, int(gridWidSlid.get()), color.get())
     Processing.downloadImg(tempArray, "sample.png")
-    sampleMap = ImageTk.PhotoImage(Image.open("img.png"))
+    sampleMap = ImageTk.PhotoImage(Image.open("sample.png"))
+
     picBackground.create_image(20, 20, anchor=NW, image=sampleMap)
 
     '''
@@ -389,7 +388,7 @@ def canProcess(x):
     picLabel.image = new_image'''
 
 
-gridWidLab = Label(root, text="Determines how many pixels a grid square is")
+gridWidLab = Label(root, text="Determines pixel length of grid squares")
 gridWidSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=canProcess)
 gridColLab = Label(root, text="Determines the color of the grid lines")
 color = StringVar(root)
