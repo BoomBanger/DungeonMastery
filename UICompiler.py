@@ -1,4 +1,6 @@
 import tkinter.filedialog
+import tkinter.font
+
 import Processing
 import numpy as np
 from tkinter import *
@@ -19,8 +21,8 @@ activeDraggable = None
 finalPic = ["LOL PICTURE GOES HERE"]
 
 # beginning page widgets
-lolDragon = ImageTk.PhotoImage(Image.open('dungeon.png'))
-dunLab = Label(root, image=lolDragon)
+print(tkinter.font.families())
+dunLab = Label(root, text='Dungeon Mastery', font=('Parchment', 30), fg='green')
 dunLab.grid(row=0, column=0, columnspan=2)
 xLabel = Label(root, text="Layout Width (5ft per block)")
 xLabel.grid(row=1, column=0)
