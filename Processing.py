@@ -168,7 +168,8 @@ def fromImage(file):
         i += 1
     return dungeon / 255
     
-    
+def downloadImg(array, file):
+    cv2.imwrite(file, array)
     
     
 if __name__ == "__main__":
