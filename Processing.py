@@ -1,6 +1,11 @@
+from distutils.log import debug
 from random import random
 import numpy as np
 import cv2
+
+def debugShow(img):
+    cv2.imshow("img", img)
+    cv2.waitKey(0)
 
 #gets the values around the border of an array
 def getBorder(array):
@@ -21,7 +26,7 @@ def blobWithMaxArea(mask, noblobswithlotsofedges=False):
     for i in range(numLabelsOut):
         img = np.zeros((labelsOut.shape))
         img[labelsOut == i] = 255
-        val = sizes[i] / (np.mean(getBorder(img)) + 1) if noblobswithlotsofedges else sizes[i]
+        val = sizes[i] / np.sqrt(np.mean(getBorder(img)) + 1) if noblobswithlotsofedges else sizes[i]
         if val > min_size:
             label = img
             min_size = val
@@ -134,9 +139,9 @@ def process(array, upscale, smoothing, wavyness, gridWidth, gridColor):
     array = binary(array)
     array = waves(array, wavyness, smoothing)
     array = smooth(array, smoothing)
+    array = binary(array)
     if gridWidth:
         array = drawGrid(array, gridWidth, gridColor)
-    array = binary(array)
     cv2.imwrite("img.png", array)
     return array
 
@@ -174,7 +179,6 @@ if __name__ == "__main__":
             [0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
             [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
             [1, 1, 1, 0, 0, 0, 1, 0, 0, 0]]
-    arr = expand(arr, 20, 20, 20, 20)
-    cv2.imshow("img", process(arr, 1000, 0, 0, 0))
-    #cv2.imshow("img.jpg", fromImage("Dungeon7.jpg"))
+    #cv2.imshow("img", process(arr, 1000, 5, 5, 100, "Gray"))
+    cv2.imshow("img.jpg", fromImage("Dungeon6.jpg"))
     cv2.waitKey(0)
