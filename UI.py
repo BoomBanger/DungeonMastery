@@ -2,7 +2,6 @@ import tkinter.filedialog
 
 import Processing
 import numpy as np
-import cv2
 from tkinter import *
 from PIL import ImageTk, Image
 
@@ -32,6 +31,7 @@ def getXY():
     buttonArray, wallArray = createMap(xBut.get(), yBut.get())
 
     refineMap.grid(row=0, column=xBut.get()+1)
+    backCompStart.grid(row=yBut.get()-1, column=xBut.get()+1)
     # these removes the startup screen buttons, allowing for map to take their place
     xLabel.grid_forget()
     yLabel.grid_forget()
@@ -45,6 +45,65 @@ enter = Button(root, text="Generate Blank Dungeon Map", command=getXY)
 enter.grid(row=2, column=0, columnspan=2)
 
 
+def startWidgets():
+    xLabel.grid(row=0, column=0)
+    yLabel.grid(row=1, column=0)
+    xBut.grid(row=0, column=1)
+    yBut.grid(row=1, column=1)
+    enter.grid(row=2, column=0, columnspan=2)
+    enterPic.grid(row=3, column=0, columnspan=2)
+
+
+# contains all the back button widget info -- 1 is comp back, 2 is converge back, 3 is photo back, 4 is downscale back
+def backButtons(preset):
+    # for comp draw back to start screen
+    if preset == 1:
+        # removing unnecessary widgets
+        refineMap.grid_forget()
+        for ro in buttonArray:
+            for but in ro:
+                but.grid_forget()
+        backCompStart.grid_forget()
+        # placing widgets back on start screen
+        startWidgets()
+    elif preset == 2:
+        # removing unnecessary widgets
+        scaleLab.grid_forget()
+        scaleSlid.grid_forget()
+        smoothLab.grid_forget()
+        smoothSlid.grid_forget()
+        roughLab.grid_forget()
+        roughSlid.grid_forget()
+        mapLab.grid_forget()
+        generateLab.grid_forget()
+        generateBut.grid_forget()
+        downloadBut.grid_forget()
+        backConvergeStart.grid_forget()
+        # placing widgets back on start screen
+        startWidgets()
+    elif preset == 3:
+        # removing unnecessary widgets
+        instructions.grid_forget()
+        selectBut.grid_forget()
+        imgLabel.grid_forget()
+        picLabel.grid_forget()
+        contin.grid_forget()
+        downSizBut.grid_forget()
+        downLab.grid_forget()
+        backPicStart.grid_forget()
+        # placing widgets back on start screen
+        startWidgets()
+    elif preset == 4:
+        # removing unnecessary widgets
+        downScalSlid.grid_forget()
+        downScalLab.grid_forget()
+        downScalBut.grid_forget()
+        backScalePic.grid_forget()
+        # placing widgets back of pic select screen
+        instructions.grid(row=0, column=0, columnspan=2)
+        selectBut.grid(row=1, column=0, columnspan=2)
+        imgLabel.grid(row=2, column=0, columnspan=2)
+
 # this section is the photo processing section
 def runPhotoProcess():
     global wallArray
@@ -53,6 +112,7 @@ def runPhotoProcess():
     print(imgPath)
     wallArray = Processing.fromImage(imgPath)
     goToProcess(2)
+
 
 # brings user to the image upload/selection screen
 def picScreen():
@@ -88,10 +148,12 @@ def downscaling():
     contin.grid_forget()
     downSizBut.grid_forget()
     downLab.grid_forget()
+    backPicStart.grid_forget()
 
-    downScalSlid.grid(row=0, column=0)
-    downScalLab.grid(row=1, column=0)
-    downScalBut.grid(row=2, column=0)
+    downScalSlid.grid(row=0, column=0, columnspan=2)
+    downScalLab.grid(row=1, column=0, columnspan=2)
+    downScalBut.grid(row=2, column=1)
+    backScalePic.grid(row=2, column=0)
 
 
 
@@ -100,7 +162,7 @@ downScalLab = Label(root, text="The values on the slider represent the width"
                                "\nof the image in pixels. 30 pixels in width"
                                "\nis the minimum and 100 pixels is the max.")
 downScalBut = Button(root, text='Downscale', command=lambda: goToProcess(3))
-
+backScalePic = Button(root, text='Back to Picture Select', command=lambda: backButtons(4))
 
 # runs all the update screen information once a user selects a photo
 def getImage():
@@ -115,10 +177,11 @@ def getImage():
     new_image = ImageTk.PhotoImage(resized_image)
     picLabel.image = new_image
     picLabel.config(image=new_image)
-    picLabel.grid(row=3, column=0, rowspan=3)
+    picLabel.grid(row=3, column=0, rowspan=4)
     contin.grid(row=3, column=1)
     downSizBut.grid(row=4, column=1)
     downLab.grid(row=5, column=1)
+    backPicStart.grid(row=6, column=1)
 
 
 # all of these widgets are used/related to the picture dungeon creation tool
@@ -134,14 +197,11 @@ contin = Button(root, text="Submit Photo \n(Skip Downscaling)", command=runPhoto
 downSizBut = Button(root, text="Downscale Photo", command=downscaling)
 downLab = Label(root, text="Downscaling decreases the photo's resolution for better map imagery "
                            "\n                                                                    "
-                           "\n                                                                    "
-                           "\n                                                                    "
                            "\n"
                            "\n"
                            "\n"
-                           "\n"
-                           "\n                                                                    ")
-
+                           "\n")
+backPicStart = Button(root, text='Back to Start', command=lambda: backButtons(3))
 
 def downloadPic():
     Processing.downloadImg(finalPic, tkinter.filedialog.asksaveasfilename())
@@ -164,6 +224,7 @@ def process(x):
     mapLab.config(image=new_map)
     mapLab.grid(row=0, rowspan=7, column=3)
 
+
 # creation of all the image editing widgets
 scaleLab = Label(root, text="Scale (width of picture in pixels)")
 scaleSlid = Scale(root, orient=HORIZONTAL, length=150, resolution=10, from_=500, to=1500, command=process)
@@ -175,6 +236,8 @@ mapLab = Label(root)
 generateLab = Label(root, text='Rerun generation process with same parameters')
 generateBut = Button(root, text='Generate', command=lambda: process(0))
 downloadBut = Button(root, text='Download', command=downloadPic)
+backConvergeStart = Button(root, text='Back to Start', command=lambda: backButtons(2))
+
 
 # runs the image generation on the user created dungeon layout:   1 is non-photo, 2 is photo, 3 is downscale
 def goToProcess(preset):
@@ -186,6 +249,7 @@ def goToProcess(preset):
         for ro in buttonArray:
             for but in ro:
                 but.grid_forget()
+        backCompStart.grid_forget()
     elif preset == 2:
         instructions.grid_forget()
         selectBut.grid_forget()
@@ -199,24 +263,26 @@ def goToProcess(preset):
         downScalSlid.grid_forget()
         downScalLab.grid_forget()
         downScalBut.grid_forget()
+        backScalePic.grid_forget()
 
     # scaling(from comp 10-1000, from pic ), smoothing(0-tbd), roughness(0-tbd), gridwidth(0-tbd), gridcolor(tbd)
-    scaleLab.grid(row=0, column=0)
-    scaleSlid.grid(row=0, column=1)
-    smoothLab.grid(row=1, column=0)
-    smoothSlid.grid(row=1, column=1)
-    roughLab.grid(row=2, column=0)
-    roughSlid.grid(row=2, column=1)
-    generateLab.grid(row=5, column=0)
-    generateBut.grid(row=5, column=1)
-    downloadBut.grid(row=6, column=0, columnspan=2)
+    scaleLab.grid(row=0, column=0, columnspan=2)
+    scaleSlid.grid(row=0, column=2)
+    smoothLab.grid(row=1, column=0, columnspan=2)
+    smoothSlid.grid(row=1, column=2)
+    roughLab.grid(row=2, column=0, columnspan=2)
+    roughSlid.grid(row=2, column=2)
+    generateLab.grid(row=5, column=0, columnspan=2)
+    generateBut.grid(row=5, column=2)
+    backConvergeStart.grid(row=6, column=0)
+    downloadBut.grid(row=6, column=1)
 
     # hopefully starts map right next to stuff pls and tlhanmk oyou
     process(0)
 
 
 refineMap = Button(root, text="Process User-Drawn Map", height=2, width=20, command=lambda: goToProcess(1))
-
+backCompStart = Button(root, text='Back to Start', height=2, width=20, command=lambda: backButtons(1))
 
 
 # creates dungeon and gives 2d array of buttons and their color values
@@ -264,4 +330,3 @@ def makeWalls(x, y):
 
 print("HI")
 root.mainloop()
-# roadmap of program looks like
