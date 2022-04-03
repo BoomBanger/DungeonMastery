@@ -213,7 +213,6 @@ def length(array, m, x, y):
 def addDoor(array, color, door):
     x, y = door
     if not array[y,x]:
-        print("no door")
         return color
     bestPoints1 = (0,0)
     bestPoints2 = (0,0)
@@ -236,29 +235,32 @@ def addNumbers(color, numbers, fontSize, fileLocation):
     with open(fileLocation, "w") as f:
         for i, (x, y, description) in enumerate(numbers):
             cv2.putText(color, "#" + str(i + 1), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), thickness=fontSize)
-            f.write("#" + str(i) + "\n\n" + description + "\n\n\n")
+            f.write("#" + str(i + 1) + ":\n\n" + description + "\n\n\n")
     return color
 
-def rescale(scale, point):
+def rescale(array, scale, point):
+    h, w = array.shape
     x, y = point[0], point[1]
     x *= scale
     y *= scale
     x, y = int(np.round(x)), int(np.round(y))
-    if len(point) > 2:
-        des = point[2]
-        return x, y, des
-    return x, y
+    if 0 <= x and x < w and 0 <= y < h:
+        if len(point) > 2:
+            des = point[2]
+            return x, y, des
+        return x, y
     
-def rescaleList(scale, points):
+def rescaleList(array, scale, points):
     newList = []
     for point in points:
-        newList.append(rescale(scale, point))
+        new = rescale(array, scale, point)
+        if new is not None: newList.append(new)
     return newList
 
 def addPoints(array, scale, doors, numbers, fontSize, fileLocation=None):
     color = cv2.cvtColor(array, cv2.COLOR_GRAY2BGR)
-    doors = rescaleList(scale, doors)
-    numbers = rescaleList(scale, numbers)
+    doors = rescaleList(array, scale, doors)
+    numbers = rescaleList(array, scale, numbers)
     for door in doors:
         color = addDoor(array, color, door)
     color = addNumbers(color, numbers, fontSize, fileLocation)
