@@ -104,7 +104,7 @@ def process(x):
     rough = roughSlid.get()
     gridWid = gridWidSlid.get()
     gridColor = color.get()  # add to processing later, QoL
-    Processing.process(wallArray, scale, smooth, rough, gridWid)
+    Processing.process(wallArray, scale, smooth, rough, gridWid, gridColor)
 
     map = Image.open("img.png")
     tkmap = ImageTk.PhotoImage(map)
