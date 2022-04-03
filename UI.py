@@ -10,6 +10,7 @@ root = Tk()
 root.title("BoomBanger Dungeon Generator")
 buttonArray = []
 wallArray = []
+sampleArray = []
 finalPic = ["LOL PICTURE GOES HERE"]
 
 # beginning page widgets
@@ -44,7 +45,6 @@ enter = Button(root, text="Generate Blank Dungeon Map", command=getXY)
 enter.grid(row=2, column=0, columnspan=2)
 
 
-
 # this section is the photo processing section
 def runPhotoProcess():
     global wallArray
@@ -64,9 +64,42 @@ def picScreen():
     enter.grid_forget()
     enterPic.grid_forget()
 
-    instructions.grid(row=0, column=0)
-    selectBut.grid(row=1, column=0)
-    imgLabel.grid(row=2, column=0)
+    instructions.grid(row=0, column=0, columnspan=2)
+    selectBut.grid(row=1, column=0, columnspan=2)
+    imgLabel.grid(row=2, column=0, columnspan=2)
+
+
+def downScaleProcess(x):
+    global sampleArray
+    sampleArray = Processing.scale(wallArray, int(x))
+
+
+def downscaling():
+    global wallArray
+    imgPath = imgLabel.cget('text')
+    imgPath = imgPath[24:]
+    wallArray = Processing.fromImage(imgPath)
+
+    # removing unnecessary widgets
+    instructions.grid_forget()
+    selectBut.grid_forget()
+    imgLabel.grid_forget()
+    picLabel.grid_forget()
+    contin.grid_forget()
+    downSizBut.grid_forget()
+    downLab.grid_forget()
+
+    downScalSlid.grid(row=0, column=0)
+    downScalLab.grid(row=1, column=0)
+    downScalBut.grid(row=2, column=0)
+
+
+
+downScalSlid = Scale(root, orient=HORIZONTAL, from_=30, to=100, command=downScaleProcess)
+downScalLab = Label(root, text="The values on the slider represent the width"
+                               "\nof the image in pixels. 30 pixels in width"
+                               "\nis the minimum and 100 pixels is the max.")
+downScalBut = Button(root, text='Downscale', command=lambda: goToProcess(3))
 
 
 # runs all the update screen information once a user selects a photo
@@ -82,8 +115,10 @@ def getImage():
     new_image = ImageTk.PhotoImage(resized_image)
     picLabel.image = new_image
     picLabel.config(image=new_image)
-    picLabel.grid(row=3, column=0)
-    contin.grid(row=4, column=0)
+    picLabel.grid(row=3, column=0, rowspan=3)
+    contin.grid(row=3, column=1)
+    downSizBut.grid(row=4, column=1)
+    downLab.grid(row=5, column=1)
 
 
 # all of these widgets are used/related to the picture dungeon creation tool
@@ -95,7 +130,17 @@ enterPic.grid(row=3, column=0, columnspan=2)
 selectBut = Button(root, text="Select Image", command=getImage)
 imgLabel = Label(root, text="Your image location is: ")
 picLabel = Label(root)
-contin = Button(root, text="Submit Photo", command=runPhotoProcess)
+contin = Button(root, text="Submit Photo \n(Skip Downscaling)", command=runPhotoProcess)
+downSizBut = Button(root, text="Downscale Photo", command=downscaling)
+downLab = Label(root, text="Downscaling decreases the photo's resolution for better map imagery "
+                           "\n                                                                    "
+                           "\n                                                                    "
+                           "\n                                                                    "
+                           "\n"
+                           "\n"
+                           "\n"
+                           "\n"
+                           "\n                                                                    ")
 
 
 def downloadPic():
@@ -108,9 +153,7 @@ def process(x):
     scale = scaleSlid.get()
     smooth = smoothSlid.get()
     rough = roughSlid.get()
-    gridWid = gridWidSlid.get()
-    gridColor = color.get()  # add to processing later, QoL
-    finalPic = Processing.process(wallArray, scale, smooth, rough, gridWid, gridColor)
+    finalPic = Processing.process(wallArray, scale, smooth, rough)
 
     map = Image.open("img.png")
     tkmap = ImageTk.PhotoImage(map)
@@ -126,22 +169,16 @@ scaleLab = Label(root, text="Scale (width of picture in pixels)")
 scaleSlid = Scale(root, orient=HORIZONTAL, length=150, resolution=10, from_=500, to=1500, command=process)
 smoothLab = Label(root, text="Smoothness (Higher means more rounded)")
 smoothSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=process)
-roughLab = Label(root, text="Bumpiness (Higher means more bumps")
+roughLab = Label(root, text="Bumpiness (Higher means more bumps)")
 roughSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=20, command=process)
-gridWidLab = Label(root, text="Determines how many pixels a grid square is")
-gridWidSlid = Scale(root, orient=HORIZONTAL, length=150, from_=0, to=50, command=process)
-gridColLab = Label(root, text="Determines the color of the grid lines")
-color = StringVar(root)
-color.set("Gray")  # default color for grid lines
-gridColDrop = OptionMenu(root, color, "Black", "White", "Gray", "Blue", "Red",
-                         "Yellow", "Orange", "Purple", "Green", command=process)
 mapLab = Label(root)
 generateLab = Label(root, text='Rerun generation process with same parameters')
 generateBut = Button(root, text='Generate', command=lambda: process(0))
 downloadBut = Button(root, text='Download', command=downloadPic)
 
-# runs the image generation on the user created dungeon layout:   1 is non-photo, 2 is photo
+# runs the image generation on the user created dungeon layout:   1 is non-photo, 2 is photo, 3 is downscale
 def goToProcess(preset):
+    global wallArray
     print(wallArray)
     if preset == 1:
         # hiding widgets in square draw path
@@ -155,6 +192,13 @@ def goToProcess(preset):
         imgLabel.grid_forget()
         picLabel.grid_forget()
         contin.grid_forget()
+        downSizBut.grid_forget()
+        downLab.grid_forget()
+    elif preset == 3:
+        wallArray = sampleArray
+        downScalSlid.grid_forget()
+        downScalLab.grid_forget()
+        downScalBut.grid_forget()
 
     # scaling(from comp 10-1000, from pic ), smoothing(0-tbd), roughness(0-tbd), gridwidth(0-tbd), gridcolor(tbd)
     scaleLab.grid(row=0, column=0)
@@ -163,17 +207,16 @@ def goToProcess(preset):
     smoothSlid.grid(row=1, column=1)
     roughLab.grid(row=2, column=0)
     roughSlid.grid(row=2, column=1)
-    gridWidLab.grid(row=3, column=0)
-    gridWidSlid.grid(row=3, column=1)
-    gridColLab.grid(row=4, column=0)
-    gridColDrop.grid(row=4, column=1)
     generateLab.grid(row=5, column=0)
     generateBut.grid(row=5, column=1)
+    downloadBut.grid(row=6, column=0, columnspan=2)
 
     # hopefully starts map right next to stuff pls and tlhanmk oyou
     process(0)
 
+
 refineMap = Button(root, text="Process User-Drawn Map", height=2, width=20, command=lambda: goToProcess(1))
+
 
 
 # creates dungeon and gives 2d array of buttons and their color values
