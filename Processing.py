@@ -1,3 +1,4 @@
+from curses import noecho
 from distutils.log import debug
 from random import random
 import numpy as np
@@ -176,9 +177,10 @@ def length(array, m, x, y):
     h, w = array.shape
     line = lambda X: m * (X - x) + y
     roundLine = lambda X: int(np.round(line(X)))
-    inBounds = lambda X, Y: 0 <= X and X < w and 0 <= Y and Y < h
+    inBounds = lambda X, Y: 1 <= X and X < w - 1 and 1 <= Y and Y < h - 1
     isDark = lambda X, Y: array[Y, X] <= 128
     edge = lambda X: not inBounds(X, roundLine(X)) or isDark(X, roundLine(X))
+    
     xMin, xMax = x, x
     while not edge(xMax): 
         xMax += 1
@@ -188,31 +190,31 @@ def length(array, m, x, y):
     xMin += 1
     dx = xMax - xMin
     dy = line(xMax) - line(xMin)
-
+    edges = cv2.Canny(array, 100, 200)
+    notEdge = lambda X, Y: edges[Y, X] <= 128
+    notByEdge = lambda X, Y: inBounds(X, Y) and (notEdge(X, Y) and notEdge(X+1, Y) and notEdge(X-1, Y) and notEdge(X, Y-1) and notEdge(X, Y + 1))
     yMin = roundLine(xMin)
     yMax = roundLine(xMax)
     direction = -np.sign(yMax - yMin)
     if direction:
-        if isDark(xMin, yMin): 
-            while inBounds(xMin, yMin) and isDark(xMin, yMin): 
+        if isDark(xMin, yMin):
+            while notByEdge(xMin, yMin):
                 yMin -= direction
         else:
-            while inBounds(xMin, yMin) and not isDark(xMin, yMin): 
+            while notByEdge(xMin, yMin): 
                 yMin += direction
         if isDark(xMax, yMax):
-            while inBounds(xMax, yMax) and isDark(xMax, yMax):
+            while notByEdge(xMax, yMax):
                 yMax += direction
         else:
-            while inBounds(xMax, yMax) and not isDark(xMax, yMax): 
+            while notByEdge(xMax, yMax): 
                 yMax -= direction
         
     return np.sqrt(dx**2 + dy**2), (xMin, yMin), (xMax, yMax)
     
     
 def addDoor(array, color, door):
-
     x, y = door
-    print(x, y)
     if not array[y,x]:
         print("no door")
         return color
@@ -274,8 +276,8 @@ if __name__ == "__main__":
             [0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
             [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
             [1, 1, 1, 0, 0, 0, 1, 0, 0, 0]]
-    img =process(arr, 500, 5, 5)
-    img = addPoints(img, 50, [(4.5, 2.5), (7.5, 4.5)],[(1, 2, "cool thing here"), (3, 4, "bad thing here")], 1)
+    img =process(arr, 500, 0, 0)
+    img = addPoints(img, 50, [(4.5, 2.5), (6.4, 4.5)],[(1, 2, "cool thing here"), (3, 4, "bad thing here")], 1)
     img = drawGrid(img, 50, "Gray")
     cv2.imshow("img.jpg", img)
     cv2.waitKey(0)
