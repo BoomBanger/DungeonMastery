@@ -460,7 +460,7 @@ def canProcess(x):
 
     resized_sampleMap = img.resize((400, int(400 * aspectRatio)))
     new_sampleMap = ImageTk.PhotoImage(resized_sampleMap)
-    picture = picBackground.create_image(20, 0, anchor=NW, image=new_sampleMap)
+    picture = picBackground.create_image(0, 0, anchor=NW, image=new_sampleMap)
     picBackground.image = new_sampleMap
     picBackground.tag_lower(picture)
 

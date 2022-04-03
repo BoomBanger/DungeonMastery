@@ -199,8 +199,8 @@ def length(array, m, x, y):
         else:
             while inBounds(xMin, yMin) and not isDark(xMin, yMin): 
                 yMin += direction
-        if inBounds(xMax, yMax) and isDark(xMax, yMax): 
-            while isDark(xMax, yMax): 
+        if isDark(xMax, yMax):
+            while inBounds(xMax, yMax) and isDark(xMax, yMax):
                 yMax += direction
         else:
             while inBounds(xMax, yMax) and not isDark(xMax, yMax): 
@@ -210,7 +210,9 @@ def length(array, m, x, y):
     
     
 def addDoor(array, color, door):
+
     x, y = door
+    print(x, y)
     if not array[y,x]:
         print("no door")
         return color
