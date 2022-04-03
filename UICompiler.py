@@ -21,7 +21,6 @@ activeDraggable = None
 finalPic = ["LOL PICTURE GOES HERE"]
 
 # beginning page widgets
-print(tkinter.font.families())
 dunLab = Label(root, text='Dungeon Mastery', font=('Parchment', 30), fg='green')
 dunLab.grid(row=0, column=0, columnspan=2)
 xLabel = Label(root, text="Layout Width (5ft per block)")
