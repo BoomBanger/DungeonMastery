@@ -169,18 +169,72 @@ def downloadImg(array, file):
     cv2.imwrite(file, array)
     
 
-def length(m, x, y):
-    pass
-    
-def addDoor(array, door):
-    x, y = door
-    if not array[x,y]:
-        return array
-    
+def length(array, m, x, y):
+    h, w = array.shape
+    line = lambda X: m * (X - x) + y
+    roundLine = lambda X: int(np.round(line(X)))
+    inBounds = lambda X, Y: 0 <= X and X < w and 0 <= Y and Y < h
+    isDark = lambda X, Y: array[Y, X] <= 128
+    edge = lambda X: not inBounds(X, roundLine(X)) or isDark(X, roundLine(X))
+    xMin, xMax = x, x
+    while not edge(xMax): 
+        xMax += 1
+    while not edge(xMin): 
+        xMin -= 1
+    xMax -= 1
+    xMin += 1
+    dx = xMax - xMin
+    dy = line(xMax) - line(xMin)
 
-def addPoints(array, doors, loot, encounters, numbers):
+    yMin = roundLine(xMin)
+    yMax = roundLine(xMax)
+    direction = -np.sign(yMax - yMin)
+    if direction:
+        if isDark(xMin, yMin): 
+            while inBounds(xMin, yMin) and isDark(xMin, yMin): 
+                yMin -= direction
+        else:
+            while inBounds(xMin, yMin) and not isDark(xMin, yMin): 
+                yMin += direction
+        if inBounds(xMax, yMax) and isDark(xMax, yMax): 
+            while isDark(xMax, yMax): 
+                yMax += direction
+        else:
+            while inBounds(xMax, yMax) and not isDark(xMax, yMax): 
+                yMax -= direction
+        
+    return np.sqrt(dx**2 + dy**2), (xMin, yMin), (xMax, yMax)
+    
+    
+def addDoor(array, color, door):
+    x, y = door
+    if not array[y,x]:
+        print("no door")
+        return color
+    bestPoints1 = (0,0)
+    bestPoints2 = (0,0)
+    bestLength = np.inf
+    for angle in np.linspace(0, np.pi, num=50):
+        m = np.tan(angle)
+        l, pt1, pt2 = length(array, m, x, y)
+        if l < bestLength:
+            bestLength = l
+            bestPoints1 = pt1
+            bestPoints2 = pt2
+    cv2.line(color, bestPoints1, bestPoints2, (42, 42, 165), thickness=5)
+    return color
+    
+def addNumbers(color, numbers):
+    for i, (x, y) in enumerate(numbers):
+        cv2.putText(color, "#" + str(i + 1), (x, y), cv2.FONT_HERSHEY_SIMPLEX, 1, (128, 128, 128), thickness=3)
+    return color
+
+def addPoints(array, doors, numbers):
+    color = cv2.cvtColor(array, cv2.COLOR_GRAY2BGR)
     for door in doors:
-        array = addDoor(array, door)
+        color = addDoor(array, color, door)
+    color = addNumbers(color, numbers)
+    return color
     
     
     
@@ -193,6 +247,7 @@ if __name__ == "__main__":
             [0, 0, 1, 1, 1, 1, 0, 1, 1, 1],
             [0, 0, 1, 0, 0, 1, 1, 1, 0, 0],
             [1, 1, 1, 0, 0, 0, 1, 0, 0, 0]]
-    #cv2.imshow("img", process(arr, 1000, 5, 5, 100, "Gray"))
-    cv2.imshow("img.jpg", fromImage("Dungeon6.jpg"))
+    img =process(arr, 1000, 5, 5)
+    img = addPoints(img, [(450, 250), (750, 450)],[(100, 200), (300, 400)])
+    cv2.imshow("img.jpg", img)
     cv2.waitKey(0)
